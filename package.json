@@ -1,6 +1,6 @@
 {
   "name": "@carbdrox/pimcore-vite-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pimcore plugin for Vite.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
