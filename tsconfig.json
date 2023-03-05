@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2019",
+    "module": "commonjs",
+    "outDir": "./dist/",
+    "declaration": true,
+    "moduleResolution": "node",
+    "paths": {
+      "~/*": [
+        "./*"
+      ],
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
