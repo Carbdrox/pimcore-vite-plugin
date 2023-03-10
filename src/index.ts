@@ -1,11 +1,13 @@
 import fs from 'fs';
 import Colorize from "./colorize";
 import fullReload from 'vite-plugin-full-reload';
+import {viteStaticCopy, Target} from 'vite-plugin-static-copy';
 import {loadEnv, ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer} from 'vite';
 
 export interface PluginConfig {
     input: string[] | {[key: string]: string};
-    reload: boolean | string | string[];
+    reload?: boolean | string | string[];
+    copy?: Target | Target[];
 }
 
 export default function pimcore(pluginConfig: PluginConfig): Plugin[] {
@@ -16,7 +18,8 @@ export default function pimcore(pluginConfig: PluginConfig): Plugin[] {
             config: (config: UserConfig, env: ConfigEnv) => compileConfiguration(pluginConfig, config, env),
             configureServer: configureServer,
         },
-        getReloadPlugin(pluginConfig) as Plugin
+        getReloadPlugin(pluginConfig) as Plugin,
+        getStaticCopyPlugin(pluginConfig) as Plugin
     ];
 }
 
@@ -54,6 +57,7 @@ function pluginVersion(): string {
 function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig, configEnv: ConfigEnv): UserConfig {
     const env = loadEnv(configEnv.mode, userConfig?.envDir ?? process.cwd(), '');
     const host = env.APP_URL ?? 'localhost';
+    const port = parseInt(env.VITE_PORT ?? '5173');
     const secure = env.VITE_SECURE == 'true' ?? false;
 
     return {
@@ -78,7 +82,7 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
         server: {
             https: userConfig?.server?.https ?? secure,
             host: userConfig?.server?.host ?? host,
-            port: userConfig?.server?.port ?? 5173,
+            port: userConfig?.server?.port ?? port,
             strictPort: userConfig?.server?.strictPort ?? true,
             hmr: userConfig?.server?.hmr ?? { host }
         }
@@ -87,6 +91,8 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
 
 function configureServer(server: ViteDevServer) {
     const serveFile = 'public/vite-serve';
+    const serverConfig = server.config.server;
+    const url = `${serverConfig.https ? 'https' : 'http'}://${serverConfig.host ?? 'localhost'}:${serverConfig.port ?? 5173}`;
 
     server.httpServer?.once('listening', () => {
         fs.writeFileSync(serveFile, 'vite-serve');
@@ -97,7 +103,9 @@ function configureServer(server: ViteDevServer) {
                 `\n  ${Colorize.purple(Colorize.bold('PIMCORE') + ' ' + pimcoreVersion())}`
                 + `  ${Colorize.grey('plugin v' + pluginVersion())}`
             );
-
+            server.config.logger.info('');
+            server.config.logger.info(`  ${Colorize.purple('➜')}  `
+                + `${Colorize.grey(Colorize.bold('App'))}:     ${Colorize.cyan(url)}`);
         }, 100);
     });
 
@@ -138,4 +146,16 @@ function getReloadPlugin(pluginConfig: PluginConfig): PluginOption {
     }
 
     return fullReload(reloadPaths);
+}
+function getStaticCopyPlugin(pluginConfig: PluginConfig): PluginOption {
+
+    if (!pluginConfig.hasOwnProperty('copy') || !pluginConfig.copy) {
+        return null;
+    }
+
+    return viteStaticCopy(
+        {
+            targets: Array.isArray(pluginConfig.copy) ? pluginConfig.copy : [pluginConfig.copy]
+        }
+    );
 }
