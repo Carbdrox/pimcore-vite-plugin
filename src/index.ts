@@ -1,29 +1,23 @@
 import fs from 'fs';
 import Colorize from "./colorize";
-import {ConfigEnv, Plugin, UserConfig, ViteDevServer} from 'vite';
+import fullReload from 'vite-plugin-full-reload';
+import {ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer} from 'vite';
 
 export interface PluginConfig {
-    input: string[] | {[key: string]: string}
+    input: string[] | {[key: string]: string};
+    reload: boolean | string | string[];
 }
 
-export default function pimcore(pluginConfig: PluginConfig): Plugin {
-    return {
-        name: 'pimcore',
-        enforce: 'post',
-        config: (config: UserConfig, env: ConfigEnv) => ({
-            base: '',
-            publicDir: false,
-            build: {
-                manifest: true,
-                target: 'es2019',
-                outDir:'public/build',
-                rollupOptions: {
-                    input: pluginConfig.input
-                }
-            }
-        }),
-        configureServer: configureServer,
-    };
+export default function pimcore(pluginConfig: PluginConfig): Plugin[] {
+    return [
+        {
+            name: 'pimcore',
+            enforce: 'post',
+            config: (config: UserConfig, env: ConfigEnv) => compileConfiguration(pluginConfig, config, env),
+            configureServer: configureServer,
+        },
+        getReloadPlugin(pluginConfig) as Plugin
+    ];
 }
 
 function pimcoreVersion(): string {
@@ -57,6 +51,21 @@ function pluginVersion(): string {
     }
 }
 
+function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig, env: ConfigEnv): UserConfig {
+    return {
+        base: '',
+        publicDir: false,
+        build: {
+            manifest: true,
+            target: 'es2019',
+            outDir:'public/build',
+            rollupOptions: {
+                input: pluginConfig.input
+            }
+        }
+    }
+}
+
 function configureServer(server: ViteDevServer) {
     const serveFile = 'public/vite-serve';
 
@@ -84,4 +93,30 @@ function configureServer(server: ViteDevServer) {
     });
 }
 
+function getReloadPlugin(pluginConfig: PluginConfig): PluginOption {
 
+    let reloadPaths = [
+        'assets/**/*.js',
+        'assets/**/*.scss',
+        'templates/**/*.twig',
+        'src/Resources/views/**/*.twig',
+    ];
+
+    if (!pluginConfig.hasOwnProperty('reload')) {
+        return fullReload(reloadPaths);
+    }
+
+    if (typeof pluginConfig.reload === 'boolean' && !pluginConfig.reload) {
+        return null;
+    }
+
+    if (typeof pluginConfig.reload === 'string' && !!pluginConfig.reload) {
+        reloadPaths.push(pluginConfig.reload);
+    }
+
+    if (typeof Array.isArray(pluginConfig.reload)) {
+        reloadPaths = reloadPaths.concat(pluginConfig.reload as string[]);
+    }
+
+    return fullReload(reloadPaths);
+}
