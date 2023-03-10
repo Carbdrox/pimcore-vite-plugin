@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Colorize from "./colorize";
 import fullReload from 'vite-plugin-full-reload';
-import {ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer} from 'vite';
+import {loadEnv, ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer} from 'vite';
 
 export interface PluginConfig {
     input: string[] | {[key: string]: string};
@@ -51,17 +51,36 @@ function pluginVersion(): string {
     }
 }
 
-function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig, env: ConfigEnv): UserConfig {
+function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig, configEnv: ConfigEnv): UserConfig {
+    const env = loadEnv(configEnv.mode, userConfig?.envDir ?? process.cwd(), '');
+    const host = env.APP_URL ?? 'localhost';
+    const secure = env.VITE_SECURE == 'true' ?? false;
+
     return {
-        base: '',
-        publicDir: false,
+        base: userConfig?.base ?? '',
+        publicDir: userConfig?.publicDir ?? false,
         build: {
-            manifest: true,
-            target: 'es2019',
-            outDir:'public/build',
+            manifest: userConfig?.build?.manifest ?? true,
+            target: userConfig?.build?.target ?? 'es2019',
+            outDir:  userConfig?.build?.outDir ??'public/build',
             rollupOptions: {
-                input: pluginConfig.input
+                input: pluginConfig?.input ?? []
             }
+        },
+        resolve: {
+            alias: userConfig?.resolve?.alias ?? {
+                '@': '/assets'
+            }
+        },
+        optimizeDeps: {
+            force: userConfig?.optimizeDeps?.force ?? true
+        },
+        server: {
+            https: userConfig?.server?.https ?? secure,
+            host: userConfig?.server?.host ?? host,
+            port: userConfig?.server?.port ?? 5173,
+            strictPort: userConfig?.server?.strictPort ?? true,
+            hmr: userConfig?.server?.hmr ?? { host }
         }
     }
 }
