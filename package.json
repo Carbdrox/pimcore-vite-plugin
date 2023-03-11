@@ -1,6 +1,6 @@
 {
-  "name": "@carbdrox/pimcore-vite-plugin",
-  "version": "0.5.0",
+  "name": "pimcore-vite-plugin",
+  "version": "1.0.0",
   "description": "Pimcore plugin for Vite.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,9 @@
   "keywords": [
     "pimcore",
     "vite",
-    "vite-plugin"
+    "vite-plugin",
+    "vitejs",
+    "hot-reload"
   ],
   "repository": {
     "type": "git",
@@ -19,7 +21,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "test": "echo 'build tests'"
+    "test": "echo 'tests tbd'"
   },
   "files": [
     "/dist"

@@ -5,7 +5,7 @@ import {viteStaticCopy, Target} from 'vite-plugin-static-copy';
 import {loadEnv, ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer} from 'vite';
 
 export interface PluginConfig {
-    input: string[] | {[key: string]: string};
+    input: string[] | { [key: string]: string };
     reload?: boolean | string | string[];
     copy?: Target | Target[];
 }
@@ -29,10 +29,9 @@ function pimcoreVersion(): string {
 
         return JSON.parse(lockData.toString())
             ?.packages
-            ?.find((packageData: {[key: string]: string}) => packageData.name === 'pimcore/pimcore')
+            ?.find((packageData: { [key: string]: string }) => packageData.name === 'pimcore/pimcore')
             ?.version ?? '';
-    }
-    catch {
+    } catch {
         return '';
     }
 }
@@ -40,16 +39,15 @@ function pimcoreVersion(): string {
 function pluginVersion(): string {
     try {
         const lockData = fs.readFileSync('package-lock.json');
-        const packages = JSON.parse(lockData.toString())?.packages as {[key: string]: any};
-        const packageKey = 'node_modules/@carbdrox/pimcore-vite-plugin';
+        const packages = JSON.parse(lockData.toString())?.packages as { [key: string]: any };
+        const packageKey = 'node_modules/pimcore-vite-plugin';
 
         if (!packages.hasOwnProperty(packageKey)) {
             return '';
         }
 
         return packages[packageKey]?.version ?? '';
-    }
-    catch {
+    } catch {
         return '';
     }
 }
@@ -66,7 +64,8 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
         build: {
             manifest: userConfig?.build?.manifest ?? true,
             target: userConfig?.build?.target ?? 'es2019',
-            outDir:  userConfig?.build?.outDir ??'public/build',
+            outDir: userConfig?.build?.outDir ?? 'public/build',
+            cssCodeSplit: userConfig?.build?.cssCodeSplit ?? true,
             rollupOptions: {
                 input: pluginConfig?.input ?? []
             }
@@ -84,7 +83,7 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
             host: userConfig?.server?.host ?? host,
             port: userConfig?.server?.port ?? port,
             strictPort: userConfig?.server?.strictPort ?? true,
-            hmr: userConfig?.server?.hmr ?? { host }
+            hmr: userConfig?.server?.hmr ?? {host}
         }
     }
 }
@@ -92,7 +91,7 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
 function configureServer(server: ViteDevServer) {
     const serveFile = 'public/vite-serve';
     const serverConfig = server.config.server;
-    const url = `${serverConfig.https ? 'https' : 'http'}://${serverConfig.host ?? 'localhost'}:${serverConfig.port ?? 5173}`;
+    const url = `${serverConfig.https ? 'https' : 'http'}://${serverConfig.host ?? 'localhost'}`;
 
     server.httpServer?.once('listening', () => {
         fs.writeFileSync(serveFile, 'vite-serve');
@@ -147,6 +146,7 @@ function getReloadPlugin(pluginConfig: PluginConfig): PluginOption {
 
     return fullReload(reloadPaths);
 }
+
 function getStaticCopyPlugin(pluginConfig: PluginConfig): PluginOption {
 
     if (!pluginConfig.hasOwnProperty('copy') || !pluginConfig.copy) {

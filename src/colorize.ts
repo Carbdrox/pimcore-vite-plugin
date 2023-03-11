@@ -1,12 +1,12 @@
 declare type rgb = { r: number, g: number, b: number };
+
 interface AvailableColors {
     'purple': rgb;
     'cyan': rgb;
     'grey': rgb;
 }
 
-export default class Colorize
-{
+export default class Colorize {
 
     private static endTag: string = '\x1b[0m';
 
