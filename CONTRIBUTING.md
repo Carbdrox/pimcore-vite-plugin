@@ -41,7 +41,7 @@ Never made an open source contribution before? Wondering how contributions work 
 
 1. Ensure any debug or test codes are removed when doing a build.
 2. Update the README.md with details of changes to the interface if made, this includes e.g. new environment variables.
-3. Increase the version numbers in the package.json and the README.md to the new version that this Pull Request would 
+3. Increase the version numbers in the package.json to the new version that this Pull Request would 
    represent. The versioning scheme we use is [SemVer](https://semver.org/).
 4. You may make changes to the pull request if the reviewing maintainer recommends them.
 5. The reviewing maintainer will merge your pull request if it meets all requirements.

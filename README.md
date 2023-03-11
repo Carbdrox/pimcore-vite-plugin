@@ -31,7 +31,7 @@ export default defineConfig({
 });
 ```
 
-To see which configuration options are available, check the section [Interface](#configuration).  
+To see which configuration options are available, check the section [Configuration](#configuration).  
 If you dont plan to specify your own host, port, https inside the server section of the object passed to defineConfig,
 the Plugin will use its default values `localhost`, `5173` and `false`.
 The recommended way to overwrite these Values is by setting environment variables inside your .env file.  
@@ -115,7 +115,7 @@ The following options can be provided:
 
 ## Acknowledgements
 
-Here are to great vite plugins.
+Here are two great vite plugins.
 I used these two plugins internally to combine all needed functionality.
 So please take a look at those too.
 
