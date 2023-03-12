@@ -94,7 +94,7 @@ function configureServer(server: ViteDevServer) {
     const url = `${serverConfig.https ? 'https' : 'http'}://${serverConfig.host ?? 'localhost'}`;
 
     server.httpServer?.once('listening', () => {
-        fs.writeFileSync(serveFile, 'vite-serve');
+        fs.writeFileSync(serveFile, url + `:${serverConfig.port ?? 5173}`);
 
         //timeout needed, so that the Log is written at the end..
         setTimeout(() => {

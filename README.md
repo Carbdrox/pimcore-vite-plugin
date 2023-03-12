@@ -50,8 +50,10 @@ You can see that you running in dev-mode by checking if the file public/vite-ser
 The built assets are located in public/build/** without further configuration. The exact position of the file can be
 found in public/build/manifest.json.
 
-It is highly recommended using our pimcore-vite-bundle to add this functionality.  
-You can find it here ..PACKAGE_URL TO BE DONE.., and install it with `composer require ..`.
+It is highly recommended using our [pimcore-vite-bundle](https://packagist.org/packages/carbdrox/pimcore-vite-bundle) 
+to add this functionality.  
+You can find it here [https://packagist.org/packages/carbdrox/pimcore-vite-bundle](https://packagist.org/packages/carbdrox/pimcore-vite-bundle), 
+and install it with `composer require carbdrox/pimcore-vite-bundle`.
 
 ## Configuration
 
