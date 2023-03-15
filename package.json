@@ -1,6 +1,6 @@
 {
   "name": "pimcore-vite-plugin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Pimcore plugin for Vite.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
