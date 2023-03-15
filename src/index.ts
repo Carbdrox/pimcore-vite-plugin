@@ -140,7 +140,7 @@ function getReloadPlugin(pluginConfig: PluginConfig): PluginOption {
         reloadPaths.push(pluginConfig.reload);
     }
 
-    if (typeof Array.isArray(pluginConfig.reload)) {
+    if (Array.isArray(pluginConfig.reload)) {
         reloadPaths = reloadPaths.concat(pluginConfig.reload as string[]);
     }
 
