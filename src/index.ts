@@ -2,7 +2,7 @@ import fs from 'fs';
 import Colorize from "./colorize";
 import fullReload from 'vite-plugin-full-reload';
 import {viteStaticCopy, Target} from 'vite-plugin-static-copy';
-import {loadEnv, ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer} from 'vite';
+import {loadEnv, ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer, HmrOptions} from 'vite';
 
 export interface PluginConfig {
     input: string[] | { [key: string]: string };
@@ -57,6 +57,12 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
     const host = env.APP_URL ?? 'localhost';
     const port = parseInt(env.VITE_PORT ?? '5173');
     const secure = env.VITE_SECURE == 'true' ?? false;
+    const hmrOptions: HmrOptions = { host };
+
+    if (env.VITE_HMR_SECURE == 'true' || (!env.hasOwnProperty('VITE_HMR_SECURE') && env.VITE_SECURE == 'true')) {
+        hmrOptions['protocol'] = 'wss';
+    }
+
 
     return {
         base: userConfig?.base ?? '',
@@ -83,7 +89,7 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
             host: userConfig?.server?.host ?? host,
             port: userConfig?.server?.port ?? port,
             strictPort: userConfig?.server?.strictPort ?? true,
-            hmr: userConfig?.server?.hmr ?? {host}
+            hmr: userConfig?.server?.hmr ?? hmrOptions
         }
     }
 }
@@ -91,7 +97,14 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
 function configureServer(server: ViteDevServer) {
     const serveFile = 'public/vite-serve';
     const serverConfig = server.config.server;
-    const url = `${serverConfig.https ? 'https' : 'http'}://${serverConfig.host ?? 'localhost'}`;
+    const host = typeof serverConfig?.hmr === 'object' ? serverConfig?.hmr?.host : serverConfig.host ?? 'localhost';
+
+    let protocol = serverConfig.https ? 'https' : 'http';
+    if (typeof serverConfig.hmr === 'object' && serverConfig.hmr.hasOwnProperty('protocol') && serverConfig.hmr.protocol === 'wss') {
+        protocol = 'https';
+    }
+
+    const url = `${protocol}://${host}`;
 
     server.httpServer?.once('listening', () => {
         fs.writeFileSync(serveFile, url + `:${serverConfig.port ?? 5173}`);
