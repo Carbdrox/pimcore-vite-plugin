@@ -1,8 +1,9 @@
 import fs from 'fs';
-import Colorize from "./colorize";
-import fullReload from 'vite-plugin-full-reload';
-import {viteStaticCopy, Target} from 'vite-plugin-static-copy';
-import {loadEnv, ConfigEnv, Plugin, PluginOption, UserConfig, ViteDevServer, HmrOptions} from 'vite';
+import Colorize from "./colorize.js";
+import fullReload from 'vite-plugin-full-reload'
+import {loadEnv, ConfigEnv, Plugin, UserConfig, ViteDevServer, HmrOptions, PluginOption} from 'vite';
+import rollupCopy, {Target} from 'rollup-plugin-copy';
+
 
 export interface PluginConfig {
     input: string[] | { [key: string]: string };
@@ -56,13 +57,14 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
     const env = loadEnv(configEnv.mode, userConfig?.envDir ?? process.cwd(), '');
     const host = env.APP_URL ?? 'localhost';
     const port = parseInt(env.VITE_PORT ?? '5173');
-    const secure = env.VITE_SECURE == 'true' ?? false;
-    const hmrOptions: HmrOptions = { host };
+    const hmrOptions: HmrOptions = {
+        host: host,
+        port: userConfig?.server?.port ?? port
+    };
 
     if (env.VITE_HMR_SECURE == 'true' || (!env.hasOwnProperty('VITE_HMR_SECURE') && env.VITE_SECURE == 'true')) {
         hmrOptions['protocol'] = 'wss';
     }
-
 
     return {
         base: userConfig?.base ?? '',
@@ -85,10 +87,6 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
             force: userConfig?.optimizeDeps?.force ?? true
         },
         server: {
-            https: userConfig?.server?.https ?? secure,
-            host: userConfig?.server?.host ?? host,
-            port: userConfig?.server?.port ?? port,
-            strictPort: userConfig?.server?.strictPort ?? true,
             hmr: userConfig?.server?.hmr ?? hmrOptions
         }
     }
@@ -166,7 +164,8 @@ function getStaticCopyPlugin(pluginConfig: PluginConfig): PluginOption {
         return null;
     }
 
-    return viteStaticCopy(
+    //@ts-ignore
+    return rollupCopy(
         {
             targets: Array.isArray(pluginConfig.copy) ? pluginConfig.copy : [pluginConfig.copy]
         }

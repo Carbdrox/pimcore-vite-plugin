@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES2019",
-    "module": "commonjs",
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./dist/",
     "declaration": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "paths": {
       "~/*": [
         "./*"

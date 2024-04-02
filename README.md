@@ -101,9 +101,7 @@ The following options can be provided:
   You can either pass an object, or an array of objects. Each Object must contain a key `src` and `dest`, specifying
   the source from where the assets can be found and destination to which they will be copied.  
   The destination path starts in the configured outDir (default public/build).  
-  If you don't pass this option, no files will be hard copied.  
-  For more configuration information take a look
-  at [vite-plugin-static-copy](https://www.npmjs.com/package/vite-plugin-static-copy).
+  If you don't pass this option, no files will be hard copied.
 
   __Default:__ `[]`
 
@@ -125,9 +123,6 @@ So please take a look at those too.
   The plugin used for the reload function.   
   [https://www.npmjs.com/package/vite-plugin-full-reload](https://www.npmjs.com/package/vite-plugin-full-reload)
 
-- `vite-plugin-static-copy`  
-  The plugin used for the copy function.   
-  [https://www.npmjs.com/package/vite-plugin-static-copy](https://www.npmjs.com/package/vite-plugin-static-copy)
 
 ## Contributing
 
