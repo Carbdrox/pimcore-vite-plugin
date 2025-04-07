@@ -66,6 +66,8 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
         hmrOptions['protocol'] = 'wss';
     }
 
+    const corsValue = env.APP_URL ? {origin: env.APP_URL} : true;
+
     return {
         base: userConfig?.base ?? '',
         publicDir: userConfig?.publicDir ?? false,
@@ -87,7 +89,8 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
             force: userConfig?.optimizeDeps?.force ?? true
         },
         server: {
-            hmr: userConfig?.server?.hmr ?? hmrOptions
+            hmr: userConfig?.server?.hmr ?? hmrOptions,
+            cors: userConfig?.server?.cors ?? corsValue,
         }
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "pimcore-vite-plugin",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Pimcore plugin for Vite.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,7 +28,7 @@
     "/dist"
   ],
   "peerDependencies": {
-    "vite": "^5.0.0"
+    "vite": "^6.0.0"
   },
   "engines": {
     "node": ">=18"
@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/node": "^18.0.0 || >=20.0.0",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0"
+    "vite": "^6.0.0"
   },
   "dependencies": {
     "rollup-plugin-copy": "^3.5.0",
