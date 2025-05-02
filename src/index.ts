@@ -4,11 +4,14 @@ import fullReload from 'vite-plugin-full-reload'
 import {loadEnv, ConfigEnv, Plugin, UserConfig, ViteDevServer, HmrOptions, PluginOption} from 'vite';
 import rollupCopy, {Target} from 'rollup-plugin-copy';
 
+type InputOption = string | string[] | { [key: string]: string };
 
 export interface PluginConfig {
-    input: string[] | { [key: string]: string };
+    input: InputOption;
     reload?: boolean | string | string[];
     copy?: Target | Target[];
+    ssr?: string | string[];
+    ssrOutputDirectory?: string
 }
 
 export default function pimcore(pluginConfig: PluginConfig): Plugin[] {
@@ -57,6 +60,7 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
     const env = loadEnv(configEnv.mode, userConfig?.envDir ?? process.cwd(), '');
     const host = env.APP_URL ?? 'localhost';
     const port = parseInt(env.VITE_PORT ?? '5173');
+    const ssr = !!userConfig.build?.ssr
     const hmrOptions: HmrOptions = {
         host: host,
         port: userConfig?.server?.port ?? port
@@ -72,12 +76,13 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
         base: userConfig?.base ?? '',
         publicDir: userConfig?.publicDir ?? false,
         build: {
-            manifest: userConfig?.build?.manifest ?? true,
-            target: userConfig?.build?.target ?? 'es2019',
-            outDir: userConfig?.build?.outDir ?? 'public/build',
+            manifest: userConfig?.build?.manifest ?? !ssr,
+            ssrManifest: userConfig.build?.ssrManifest ?? ssr,
+            target: userConfig?.build?.target ?? 'es2020',
+            outDir: userConfig?.build?.outDir ?? (ssr ? 'build/ssr' : 'public/build'),
             cssCodeSplit: userConfig?.build?.cssCodeSplit ?? true,
             rollupOptions: {
-                input: pluginConfig?.input ?? []
+                input: userConfig.build?.rollupOptions?.input ?? getInputPaths(pluginConfig, ssr)
             }
         },
         resolve: {
@@ -93,6 +98,14 @@ function compileConfiguration(pluginConfig: PluginConfig, userConfig: UserConfig
             cors: userConfig?.server?.cors ?? corsValue,
         }
     }
+}
+
+function getInputPaths(pluginConfig: PluginConfig, ssr: boolean): InputOption {
+    if(ssr) {
+        return pluginConfig.ssr ?? [];
+    }
+
+    return pluginConfig?.input ?? [];
 }
 
 function configureServer(server: ViteDevServer) {
